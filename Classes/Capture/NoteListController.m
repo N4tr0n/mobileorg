@@ -26,6 +26,7 @@
 #import "Node.h"
 #import "DataUtils.h"
 #import "GlobalUtils.h"
+#import "MobileOrg-Swift.h"
 
 @implementation NoteListController
 
@@ -67,7 +68,7 @@
 
     [self stopEditing];
 
-    Note *newNote = (Note*)[NSEntityDescription insertNewObjectForEntityForName:@"Note" inManagedObjectContext:[AppInstance() managedObjectContext]];
+    Note *newNote = (Note*)[NSEntityDescription insertNewObjectForEntityForName:@"Note" inManagedObjectContext:PersistenceStack.shared.moc];
     [newNote setCreatedAt:[NSDate date]];
     [newNote setNoteId:UUID()];
     [newNote setLocallyModified:[NSNumber numberWithBool:true]];
@@ -112,6 +113,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+
+    self.tableView.cellLayoutMarginsFollowReadableWidth = NO;
 
     addButton = [[UIBarButtonItem alloc]
                  initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNote)];
@@ -167,7 +170,7 @@
     return YES;
 }
 
-- (NSUInteger)supportedInterfaceOrientations {
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
     return UIInterfaceOrientationMaskAll;
 }
 

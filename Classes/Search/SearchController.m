@@ -28,6 +28,7 @@
 #import "MobileOrgAppDelegate.h"
 #import "DataUtils.h"
 #import "GlobalUtils.h"
+#import "MobileOrg-Swift.h"
 
 @implementation SearchController
 
@@ -42,7 +43,7 @@
 }
 
 - (NSIndexPath*)pathForNode:(Node*)node {
-    int index = [[self nodesArray] indexOfObject:node];
+    int index = (int)[[self nodesArray] indexOfObject:node];
     if (index >= 0 && index < [nodesArray count]) {
         return [NSIndexPath indexPathForRow:index inSection:0];
     }
@@ -85,10 +86,8 @@
             ret = controller;
             break;
         }
-        case OutlineSelectionTypeDocumentView:
-        {
+      default:
             break;
-        }
     }
 
     return ret;
@@ -96,6 +95,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+
+    self.tableView.cellLayoutMarginsFollowReadableWidth = NO;
 
     [self setTitle:@"Search"];
 
@@ -124,7 +125,7 @@
 
 - (void)performSearch:(NSString*)term {
     NSFetchRequest *request = [[NSFetchRequest alloc] init];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Node" inManagedObjectContext:[AppInstance() managedObjectContext]];
+  NSEntityDescription *entity = [NSEntityDescription entityForName:@"Node" inManagedObjectContext:PersistenceStack.shared.moc];
     [request setEntity:entity];
 
     NSNumber *predLevel = [[NSNumber alloc] initWithInt:0];
@@ -152,7 +153,7 @@
     [predLevel release];
 
     NSError *error;
-    NSMutableArray *mutableFetchResults = [[[AppInstance() managedObjectContext] executeFetchRequest:request error:&error] mutableCopy];
+    NSMutableArray *mutableFetchResults = [[PersistenceStack.shared.moc executeFetchRequest:request error:&error] mutableCopy];
     if (mutableFetchResults == nil) {
         // TODO: Error
     }
@@ -212,7 +213,7 @@
     return YES;
 }
 
-- (NSUInteger)supportedInterfaceOrientations {
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
     return UIInterfaceOrientationMaskAll;
 }
 
@@ -261,7 +262,7 @@
     }
 
     NSString *context_str = @"";
-    for (int i = [context count]-1; i >= 0; i--) {
+    for (int i = (int)[context count]-1; i >= 0; i--) {
         if ([context_str length] > 0) {
             context_str = [NSString stringWithFormat:@"%@ > %@", context_str, [[context objectAtIndex:i] headingForDisplay]];
         } else {
